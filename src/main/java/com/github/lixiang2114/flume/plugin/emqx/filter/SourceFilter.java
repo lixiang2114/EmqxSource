@@ -35,9 +35,29 @@ public interface SourceFilter {
 	default public String getUsername(){return null;}
 	
 	/**
+	 * @return
+	 */
+	default public String getJwtsecret(){return null;}
+	
+	/**
+	 * @return
+	 */
+	default public Integer getExpirefactor(){return 750;}
+	
+	/**
+	 * @return
+	 */
+	default public Integer getTokenexpire(){return 3600;}
+	
+	/**
 	 * @param properties
 	 */
 	default public void filterConfig(Properties properties){}
+	
+	/**
+	 * @return
+	 */
+	default public String getTokenfrom(){return "password";}
 	
 	/**
 	 * @param config

@@ -24,7 +24,9 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import com.github.lixiang2114.flume.plugin.emqx.handler.DefaultMessageHandler;
+import com.github.lixiang2114.flume.plugin.emqx.handler.TokenExpireHandler;
 import com.github.lixiang2114.flume.plugin.emqx.util.ClassLoaderUtil;
+import com.github.lixiang2114.flume.plugin.emqx.util.TokenUtil;
 import com.github.lixiang2114.flume.plugin.emqx.util.TypeUtil;
 
 /**
@@ -73,9 +75,19 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	private static MqttClient mqttClient;
 	
 	/**
+	 * 是否使用密码字段携带Token
+	 */
+	private static boolean tokenFromPass=true;
+	
+	/**
 	 * Mqtt客户端持久化模式
 	 */
 	private static MqttClientPersistence persistence;
+	
+	/**
+	 * 是否需要启动Token过期调度器
+	 */
+	private static boolean startTokenScheduler=false;
 	
 	/**
 	 * Mqtt客户端连接参数
@@ -115,6 +127,7 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	@Override
 	public synchronized void start() {
 		super.start();
+		if(startTokenScheduler)TokenExpireHandler.startTokenScheduler(mqttConnectOptions, tokenFromPass);
 		DefaultMessageHandler messageHandler=(DefaultMessageHandler)mqttCallbackExtended;
 		try {
 			messageHandler.setChannelProcessor(getChannelProcessor());
@@ -129,6 +142,7 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	public synchronized void stop() {
 		try{
 			((DefaultMessageHandler)mqttCallbackExtended).stop();
+			TokenExpireHandler.stopTokenScheduler();
 			mqttClient.disconnectForcibly();
 			mqttClient.close(true);
 		}catch(MqttException e){
@@ -223,6 +237,10 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 		
 		//初始化过滤器对象与接口表
 		initFilterFace(filterType);
+		
+		if(startTokenScheduler){
+			//qidong 
+		}
 	}
 	
 	/**
@@ -282,16 +300,73 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 		mqttConnectOptions.setConnectionTimeout(Integer.parseInt(getParamValue(context,"connectionTimeout", "30")));
 		mqttConnectOptions.setAutomaticReconnect(Boolean.parseBoolean(getParamValue(context,"automaticReconnect", "true")));
 		
+		String jwtSecret=null;
+		try{
+			jwtSecret=(String)filterType.getDeclaredMethod("getJwtsecret").invoke(filterObject);
+		}catch(Exception e){
+			System.out.println("Warn:===jwt secret information not found...");
+		}
+		
 		String userName=null;
 		String passWord=null;
 		try{
 			userName=(String)filterType.getDeclaredMethod("getUsername").invoke(filterObject);
 			passWord=(String)filterType.getDeclaredMethod("getPassword").invoke(filterObject);
 		}catch(Exception e){
-			System.out.println("Warn:===authentication information not found, will login anonymously...");
+			System.out.println("Warn:===username or password information not found...");
 		}
-		mqttConnectOptions.setUserName(null==userName||0==userName.trim().length()?"admin":userName.trim());
-		mqttConnectOptions.setPassword(null==passWord||0==passWord.trim().length()?"public".toCharArray():passWord.trim().toCharArray());
+		
+		passWord=null==passWord||0==passWord.trim().length()?"public":passWord.trim();
+		userName=null==userName||0==userName.trim().length()?"admin":userName.trim();
+			
+		if(null!=jwtSecret){
+			Integer tokenExpire=null;
+			try{
+				tokenExpire=(Integer)filterType.getDeclaredMethod("getTokenexpire").invoke(filterObject);
+			}catch(Exception e){
+				System.out.println("Warn:===token expire information not found...");
+			}
+			
+			Integer expireFactor=null;
+			try{
+				expireFactor=(Integer)filterType.getDeclaredMethod("getExpirefactor").invoke(filterObject);
+			}catch(Exception e){
+				System.out.println("Warn:===expire factor information not found...");
+			}
+			
+			if(null==tokenExpire) tokenExpire=3600;
+			if(null==expireFactor) expireFactor=750;
+			
+			String token=null;
+			try {
+				token=TokenUtil.initToken(jwtSecret, tokenExpire, userName, expireFactor);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			
+			if(null==token) throw new RuntimeException("token is NULL or EMPTY!!!");
+			
+			String tokenFromField=null;
+			try{
+				tokenFromField=(String)filterType.getDeclaredMethod("getTokenfrom").invoke(filterObject);
+			}catch(Exception e){
+				System.out.println("Warn:===token field name is unknow,default use password...");
+			}
+			
+			if(null==tokenFromField) tokenFromField="password";
+			
+			if("username".equalsIgnoreCase(tokenFromField)) {
+				userName=token;
+				tokenFromPass=false;
+			}else {
+				passWord=token;
+				tokenFromPass=true;
+			}
+			startTokenScheduler=true;
+		}
+		
+		mqttConnectOptions.setUserName(userName);
+		mqttConnectOptions.setPassword(passWord.toCharArray());
 		
 		String persistenceType=getParamValue(context,"persistenceType", "org.eclipse.paho.client.mqttv3.persist.MemoryPersistence");
 		try {
