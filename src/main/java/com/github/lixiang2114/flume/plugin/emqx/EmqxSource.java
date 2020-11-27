@@ -75,6 +75,11 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	private static MqttClient mqttClient;
 	
 	/**
+	 * 是否需要启动Token过期调度器
+	 */
+	private static Boolean startTokenScheduler;
+	
+	/**
 	 * 是否使用密码字段携带Token
 	 */
 	private static boolean tokenFromPass=true;
@@ -83,11 +88,6 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	 * Mqtt客户端持久化模式
 	 */
 	private static MqttClientPersistence persistence;
-	
-	/**
-	 * 是否需要启动Token过期调度器
-	 */
-	private static boolean startTokenScheduler=false;
 	
 	/**
 	 * Mqtt客户端连接参数
@@ -127,7 +127,7 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	@Override
 	public synchronized void start() {
 		super.start();
-		if(startTokenScheduler)TokenExpireHandler.startTokenScheduler(mqttConnectOptions, tokenFromPass);
+		if(null!=startTokenScheduler && startTokenScheduler)TokenExpireHandler.startTokenScheduler(mqttConnectOptions, tokenFromPass);
 		DefaultMessageHandler messageHandler=(DefaultMessageHandler)mqttCallbackExtended;
 		try {
 			messageHandler.setChannelProcessor(getChannelProcessor());
@@ -237,10 +237,6 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 		
 		//初始化过滤器对象与接口表
 		initFilterFace(filterType);
-		
-		if(startTokenScheduler){
-			//qidong 
-		}
 	}
 	
 	/**
@@ -337,6 +333,12 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 			if(null==tokenExpire) tokenExpire=3600;
 			if(null==expireFactor) expireFactor=750;
 			
+			if(-1==tokenExpire.intValue()) {
+				expireFactor=1000;
+				tokenExpire=1000000000;
+				startTokenScheduler=false;
+			}
+			
 			String token=null;
 			try {
 				token=TokenUtil.initToken(jwtSecret, tokenExpire, userName, expireFactor);
@@ -362,7 +364,8 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 				passWord=token;
 				tokenFromPass=true;
 			}
-			startTokenScheduler=true;
+			
+			if(null==startTokenScheduler) startTokenScheduler=true;
 		}
 		
 		mqttConnectOptions.setUserName(userName);
