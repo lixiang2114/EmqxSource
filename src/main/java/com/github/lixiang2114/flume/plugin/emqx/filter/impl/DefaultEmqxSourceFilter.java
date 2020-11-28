@@ -2,14 +2,14 @@ package com.github.lixiang2114.flume.plugin.emqx.filter.impl;
 
 import java.util.Map;
 
-import com.github.lixiang2114.flume.plugin.emqx.filter.SourceFilter;
+import com.github.lixiang2114.flume.plugin.emqx.filter.EmqxSourceFilter;
 import com.github.lixiang2114.flume.plugin.emqx.util.TypeUtil;
 
 /**
  * @author Louis(LiXiang)
  * @description 默认Source过滤器实现
  */
-public class DefaultSourceFilter implements SourceFilter{
+public class DefaultEmqxSourceFilter implements EmqxSourceFilter{
 	/**
 	 * 通信质量表
 	 */
