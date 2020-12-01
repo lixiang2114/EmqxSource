@@ -133,7 +133,7 @@ public interface EmqxSourceFilter {
 	 * @param record
 	 * @return 文档记录
 	 */
-	public String doFilter(String record);
+	public String[] doFilter(String record);
 	
 	/**
 	 * 日志数据的通信质量列表
@@ -292,8 +292,8 @@ public class EmqxLoggerFilter implements EmqxSourceFilter{
 	}
 
 	@Override
-	public String doFilter(String record) {
-		return record;
+	public String[] doFilter(String record) {
+		return new String[]{record};
 	}
 
 	@Override
