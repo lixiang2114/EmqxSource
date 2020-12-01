@@ -129,14 +129,19 @@ public class DefaultMessageHandler implements MqttCallbackExtended{
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
 		String msg=new String(message.getPayload(),"UTF-8");
-		String record=(String)doFilter.invoke(filterObject, msg);
+		String[] records=(String[])doFilter.invoke(filterObject, msg);
 		
-		if(null==record || 0==record.trim().length()) return;
+		if(null==records || 0==records.length) return;
 		
-		synchronized (eventList) {
-            eventList.add(EventBuilder.withBody(record,Charset.forName("UTF-8")));
-            if (batchSize<=eventList.size() || timeout()) flushEventBatch(eventList);
-        }
+		String row=null;
+		for(String record:records){
+			if(null==record) continue;
+			row=record.trim();
+			if(0==row.length()) continue;
+			eventList.add(EventBuilder.withBody(row,Charset.forName("UTF-8")));
+		}
+		
+		if (batchSize<=eventList.size() || timeout()) flushEventBatch(eventList);
 	}
 	
 	/**

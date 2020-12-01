@@ -91,8 +91,8 @@ public class DefaultEmqxSourceFilter implements EmqxSourceFilter{
 	}
 
 	@Override
-	public String doFilter(String record) {
-		return record;
+	public String[] doFilter(String record) {
+		return new String[]{record};
 	}
 
 	@Override
