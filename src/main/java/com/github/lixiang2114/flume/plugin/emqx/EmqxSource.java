@@ -122,7 +122,7 @@ public class EmqxSource extends AbstractSource implements EventDrivenSource,Conf
 	/**
 	 * Source默认过滤器
 	 */
-	private static final String DEFAULT_FILTER="com.github.lixiang2114.flume.plugin.emqx.filter.impl.DefaultSourceFilter";
+	private static final String DEFAULT_FILTER="com.github.lixiang2114.flume.plugin.emqx.filter.impl.DefaultEmqxSourceFilter";
 	
 	@Override
 	public synchronized void start() {
