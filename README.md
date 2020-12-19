@@ -375,7 +375,7 @@ cp -a EmqxLoggerFilter.jar /software/flume-1.9.0/filter/lib/
 ```Text
 vi /software/flume-1.9.0/filter/emqxFilter.properties  
 type=EmqxLoggerFilter
-qoses=Test-Topics
+topics=Test-Topics
 ```
 
 
