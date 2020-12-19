@@ -423,12 +423,12 @@ a1.sources.s2.channels=c2
 ```Text
 cat filter01.properties
 type=UserInfoFilter
-qoses=Test-Topics1    
+topics=Test-Topics1    
     
         
 cat filter02.properties
 type=OrderInfoFilter
-qoses=Test-Topics2      
+topics=Test-Topics2      
 ```
 
 最后还需要分别编写过滤器类UserInfoFilter和OrderInfoFilter，注意上面定义的这两个类都没有包名，这说明它们被放在默认的classpath的类路径根目录下，为了便于简化程序员的编码和部署工作，EmqxSource插件允许对一些非常简单的过滤操作只需要编写一个单类即可，编译好这个单类并将它拷贝到filter目录下即完成快捷部署。当然如果对于一些过滤非常复杂的操作（比如在过滤中涉及到一些业务逻辑的处理等），我们也可以启动一个完整的JAVA工程或Maven工程来编写过滤器，最后将其打包成jar文件拷贝到filter目录下，** 过滤器的编写参见上述章节的讲解 **    
