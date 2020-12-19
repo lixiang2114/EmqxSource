@@ -1,5 +1,5 @@
 ### 插件开发背景
-EmqxSource是Flume流处理工具下基于Emqx消息中间件的一款Sink插件，截止目前的Flume1.9版本发布包，还不曾携带基于Emqx中间件的Source插件，为实现Flume流处理工具能够很好的对接到Emqx中间件服务，特开发EmqxSource插件，该插件基于Mqttv3驱动1.2.2版本开发，即：org.eclipse.paho.client.mqttv3-1.2.2
+EmqxSource是Flume流处理工具下基于Emqx消息中间件的一款Source插件，截止目前的Flume1.9版本发布包，还不曾携带基于Emqx中间件的Source插件，为实现Flume流处理工具能够很好的对接到Emqx中间件服务，特开发EmqxSource插件，该插件基于Mqttv3驱动1.2.2版本开发，即：org.eclipse.paho.client.mqttv3-1.2.2
 
 
 ​      
