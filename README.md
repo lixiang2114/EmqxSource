@@ -404,18 +404,18 @@ a1.sources.s1.userName=admin
 a1.sources.s1.batchSize=100
 a1.sources.s1.channels=c1 
 
-a1.sources.s1.persistenceType=org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-a1.sources.s1.type=com.github.lixiang2114.flume.plugin.emqx.EmqxSource
-a1.sources.s1.hostList=192.168.162.128:1883
-a1.sources.s1.jwtSecret=bGl4aWFuZw==
-a1.sources.s1.filterName=filter02
-a1.sources.s1.tokenFrom=password
-a1.sources.s1.batchTimeout=3000
-a1.sources.s1.protocolType=tcp
-a1.sources.s1.tokenExpire=-1
-a1.sources.s1.userName=admin
-a1.sources.s1.batchSize=100
-a1.sources.s1.channels=c2 
+a1.sources.s2.persistenceType=org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+a1.sources.s2.type=com.github.lixiang2114.flume.plugin.emqx.EmqxSource
+a1.sources.s2.hostList=192.168.162.128:1883
+a1.sources.s2.jwtSecret=bGl4aWFuZw==
+a1.sources.s2.filterName=filter02
+a1.sources.s2.tokenFrom=password
+a1.sources.s2.batchTimeout=3000
+a1.sources.s2.protocolType=tcp
+a1.sources.s2.tokenExpire=-1
+a1.sources.s2.userName=admin
+a1.sources.s2.batchSize=100
+a1.sources.s2.channels=c2 
 ```
 
 然后在filter目录下指定对应的过滤器配置文件即可（根据约定优于配置的原则，我们定义的文件名需要与filterName参数值保持相同，比如默认文件名为：filter.properties），一个典型的过滤器配置形如下面给出的格式：    
