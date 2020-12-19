@@ -514,14 +514,7 @@ EmqxSource插件启动时会自动将Flume安装目录下的filter子目录递�
 
 ​    
 ##### EmqxSource安全认证  
-如果你的存储介质中保存的是与用户信息无关的脱敏数据，同时存储服务部署于内网，则不建议使用安全认证，因为安全认证本身将给内网通信带来更多的附加网络阻力，如果在特定的场景下需要Emqx做安全认证，则可以在Emqx服务中开启安全认证，这需要首先在MongoDB中配置数据库用户：  
-```Shell
-[root@CC9 sbin]# pwd
-/software/mongodb-4.4.1/sbin
-./SingleTools addAdmin -au root -ap 123456
-./SingleTools addUser -d mdbtest -au ligang -ap 123456
-```
-addAdmin是为admin数据库增加一个超级用户root，第二个addUser是为指定的mdbtest数据库增加用户ligang，超级用户的角色为root，拥有所有读写和执行权限，普通用户ligang只有读写权限，其中-d参数执行增加用户所在的数据库，-au指定新增用户的登录用户名，-ap参数指定新增用户的登录密码，最后启动MongoDB服务时需要带上-a参数（--auth）表示任何形式的客户端登录到MongoDB数据库都需要验证：   
+如果你的存储介质中保存的是与用户信息无关的脱敏数据，同时存储服务部署于内网，则不建议使用安全认证，因为安全认证本身将给内网通信带来更多的附加网络阻力，如果在特定的场景下需要Emqx做安全认证，则可以在Emqx服务中开启安全认证，这需要首先在Emqx中配置登录认证信息：  
 ```Shell
 [root@CC6 etc]# pwd
 /software/emqx4.2.1/etc
